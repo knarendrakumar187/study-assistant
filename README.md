@@ -6,7 +6,7 @@ cards, take the quiz, and re-test only the questions you got wrong.
 
 **Demo recording:** _TODO: add link after recording_
 
-**Live deployment:** _TODO: add link after deploying_
+**Live deployment:** https://study-assistant-livid-gamma.vercel.app/
 
 ## Setup
 
