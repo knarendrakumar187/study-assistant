@@ -80,6 +80,12 @@ export default function Quiz({ questions }) {
       <p className="quiz-progress">
         Question {index + 1} of {round.length}
       </p>
+      <div className="quiz-progress-track" aria-hidden="true">
+        <div
+          className="quiz-progress-fill"
+          style={{ width: `${((index + (selected !== null ? 1 : 0)) / round.length) * 100}%` }}
+        />
+      </div>
       <h3 className="quiz-question">{question.question}</h3>
       <div className="quiz-options">
         {question.options.map((option, i) => {

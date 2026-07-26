@@ -12,7 +12,7 @@
   --radius: 12px;
 
   color-scheme: dark;
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
 
 * {
@@ -21,7 +21,11 @@
 
 body {
   margin: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(600px 300px at 15% -5%, rgba(99, 102, 241, 0.14), transparent 70%),
+    radial-gradient(700px 350px at 90% 0%, rgba(56, 189, 248, 0.1), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--text);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
