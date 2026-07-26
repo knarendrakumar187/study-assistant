@@ -1,122 +1,119 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useRef, useState } from "react";
+import NotesInput from "./components/NotesInput.jsx";
+import Flashcards from "./components/Flashcards.jsx";
+import Quiz from "./components/Quiz.jsx";
+import { generateStudySet } from "./lib/api.js";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [status, setStatus] = useState("idle"); // idle | loading | ready | error
+  const [studySet, setStudySet] = useState(null);
+  const [error, setError] = useState("");
+  const [tab, setTab] = useState("cards");
+
+  // Guards against out-of-order responses: only the latest request may
+  // update state. The previous in-flight request is also aborted outright.
+  const requestIdRef = useRef(0);
+  const abortRef = useRef(null);
+  const lastNotesRef = useRef("");
+
+  async function handleGenerate(notes) {
+    lastNotesRef.current = notes;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const requestId = ++requestIdRef.current;
+
+    setStatus("loading");
+    setError("");
+    try {
+      const set = await generateStudySet(notes, controller.signal);
+      if (requestId !== requestIdRef.current) return; // stale response, ignore
+      setStudySet(set);
+      setTab(set.cards.length > 0 ? "cards" : "quiz");
+      setStatus("ready");
+    } catch (e) {
+      if (requestId !== requestIdRef.current) return;
+      if (e.name === "AbortError") return; // cancelled by a newer request
+      setError(e.message);
+      setStatus("error");
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app">
+      <header className="app-header">
+        <h1>Study Assistant</h1>
+        <p className="app-tagline">
+          Paste your notes, get flashcards and a quiz. Powered by Gemini.
+        </p>
+      </header>
+
+      <NotesInput onGenerate={handleGenerate} loading={status === "loading"} />
+
+      {status === "loading" && (
+        <div className="state-panel" role="status">
+          <div className="spinner" />
+          <p>Reading your notes and building a study set…</p>
         </div>
-        <div>
-          <h1>Get started</h1>
+      )}
+
+      {status === "error" && (
+        <div className="state-panel state-error" role="alert">
+          <p>{error}</p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => handleGenerate(lastNotesRef.current)}
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
+      {status === "idle" && !studySet && (
+        <div className="state-panel state-empty">
           <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+            Nothing here yet. Paste some notes above (or hit “Try an example”) and
+            generate your first study set.
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      )}
 
-      <div className="ticks"></div>
+      {studySet && status !== "loading" && (
+        <section className="study-set">
+          <h2 className="study-set-title">{studySet.title}</h2>
+          <div className="tabs" role="tablist">
+            {studySet.cards.length > 0 && (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === "cards"}
+                className={`tab ${tab === "cards" ? "tab-active" : ""}`}
+                onClick={() => setTab("cards")}
+              >
+                Flashcards ({studySet.cards.length})
+              </button>
+            )}
+            {studySet.quiz.length > 0 && (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === "quiz"}
+                className={`tab ${tab === "quiz" ? "tab-active" : ""}`}
+                onClick={() => setTab("quiz")}
+              >
+                Quiz ({studySet.quiz.length})
+              </button>
+            )}
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+          {tab === "cards" && studySet.cards.length > 0 && (
+            <Flashcards cards={studySet.cards} />
+          )}
+          {tab === "quiz" && studySet.quiz.length > 0 && <Quiz questions={studySet.quiz} />}
+        </section>
+      )}
+    </div>
+  );
 }
-
-export default App
