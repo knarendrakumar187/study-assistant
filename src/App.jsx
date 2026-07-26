@@ -50,7 +50,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <div className="page">
       <nav className="navbar">
         <div className="brand">
           <span className="brand-mark">S</span>
@@ -149,6 +149,24 @@ export default function App() {
           </section>
         )}
       </div>
-    </>
+
+      <footer className="footer">
+        <div className="footer-inner">
+          <span className="footer-brand">Study Assistant</span>
+          <span className="footer-sep">·</span>
+          <span>Notes → flashcards & quizzes</span>
+          <span className="footer-sep">·</span>
+          <span>Powered by Gemini</span>
+          <span className="footer-sep">·</span>
+          <a
+            href="https://github.com/knarendrakumar187/study-assistant"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
+      </footer>
+    </div>
   );
 }
