@@ -2,13 +2,13 @@ import { parseStudySet, ValidationError } from "./validate.js";
 
 const REQUEST_TIMEOUT_MS = 35_000;
 
-async function requestOnce(payload, signal) {
+async function requestOnce(notes, signal) {
   let res;
   try {
     res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ notes }),
       // Aborts when either the caller cancels or the timeout fires.
       signal: AbortSignal.any([signal, AbortSignal.timeout(REQUEST_TIMEOUT_MS)]),
     });
@@ -37,15 +37,14 @@ async function requestOnce(payload, signal) {
 }
 
 /**
- * Generates a study set from free-form notes, or — when `payload` also has
- * `instruction` and `current` — asks the AI to edit the existing set.
+ * Generates a study set from free-form notes.
  * If the model returns unusable output, it automatically retries once
  * before surfacing the error to the UI.
  */
-export async function generateStudySet(payload, signal) {
+export async function generateStudySet(notes, signal) {
   let lastValidationError;
   for (let attempt = 0; attempt < 2; attempt++) {
-    const raw = await requestOnce(payload, signal);
+    const raw = await requestOnce(notes, signal);
     try {
       return parseStudySet(raw);
     } catch (e) {

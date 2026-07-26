@@ -9,31 +9,7 @@
 const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
 const GEMINI_TIMEOUT_MS = 25_000;
 
-function buildPrompt(notes, refine) {
-  if (refine) {
-    return `You are a study assistant. The user already has the study set below
-and wants it modified.
-
-CURRENT STUDY SET (JSON):
-${JSON.stringify(refine.current)}
-
-USER'S INSTRUCTION:
-"""
-${refine.instruction}
-"""
-
-Apply the instruction to the current study set. Keep everything the user did not
-ask to change exactly as it is. Respond with ONLY the FULL updated JSON object,
-no markdown fences, in the same shape as the current study set (title, cards
-with question/answer, quiz with question/options/correctIndex/explanation).
-Every quiz question has exactly 4 options and correctIndex is 0-3.
-
-For reference, the original notes/topic were:
-"""
-${notes}
-"""`;
-  }
-
+function buildPrompt(notes) {
   return `You are a study assistant. Based on the study notes or topic below,
 create flashcards and a multiple-choice quiz.
 
@@ -75,38 +51,36 @@ function apiError(status, message) {
 const MOCK_STUDY_SET = {
   title: "Mock Study Set (no API key used)",
   cards: [
-    { question: "What is evaporation?", answer: "The sun heats water in oceans and lakes, turning it into vapor." },
-    { question: "What is condensation?", answer: "Water vapor cools in the atmosphere and forms clouds." },
-    { question: "Roughly how much of Earth's water is in the oceans?", answer: "About 97%." },
+    { question: "What is a closure in JavaScript?", answer: "A function that remembers variables from its outer scope even after that scope has finished." },
+    { question: "What is the Virtual DOM?", answer: "An in-memory representation of the real DOM that React diffs to apply minimal updates." },
+    { question: "What does === do that == does not?", answer: "=== compares value and type with no coercion; == coerces types before comparing." },
   ],
   quiz: [
     {
-      question: "Which process describes plants releasing water vapor?",
-      options: ["Evaporation", "Transpiration", "Precipitation", "Collection"],
+      question: "Which hook stores a value that survives re-renders without causing one?",
+      options: ["useState", "useRef", "useEffect", "useMemo"],
       correctIndex: 1,
-      explanation: "Transpiration is the release of water vapor through plant leaves.",
+      explanation: "useRef keeps a mutable value across renders without triggering a re-render.",
     },
     {
-      question: "What happens during precipitation?",
+      question: "Why do list items need a key prop?",
       options: [
-        "Water evaporates from the sea",
-        "Clouds form from vapor",
-        "Water falls as rain, snow, or hail",
-        "Water collects underground",
+        "It styles the item",
+        "It helps React identify which items changed",
+        "It makes the list scrollable",
+        "It is required for accessibility only",
       ],
-      correctIndex: 2,
-      explanation: "Precipitation is water falling back to Earth as rain, snow, or hail.",
+      correctIndex: 1,
+      explanation: "Keys help React match items across renders during reconciliation.",
     },
   ],
 };
 
 /**
  * Sends the notes to Gemini and returns the model's raw text response.
- * When `refine` ({ instruction, current }) is given, asks the model to edit
- * the existing study set instead of creating a new one.
  * Throws an Error with a `.status` property on any upstream failure.
  */
-export async function generateStudySet(notes, refine = null) {
+export async function generateStudySet(notes) {
   if (process.env.MOCK_AI === "1") {
     await new Promise((r) => setTimeout(r, 800)); // simulate latency
     return JSON.stringify(MOCK_STUDY_SET);
@@ -128,7 +102,7 @@ export async function generateStudySet(notes, refine = null) {
         "x-goog-api-key": apiKey,
       },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: buildPrompt(notes, refine) }] }],
+        contents: [{ parts: [{ text: buildPrompt(notes) }] }],
         generationConfig: {
           temperature: 0.4,
           responseMimeType: "application/json",

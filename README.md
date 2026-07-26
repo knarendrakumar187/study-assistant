@@ -1,8 +1,8 @@
 # Study Assistant
 
-Paste your study notes (or just a topic), and the app uses Google Gemini to
-generate a set of **flashcards** and a **multiple-choice quiz**. Flip through the
-cards, take the quiz, and re-test only the questions you got wrong.
+Paste your study notes or an interview topic, and the app uses Google Gemini to
+generate **flashcards** and a **multiple-choice quiz**. Flip through the cards,
+take the quiz, and re-test only the questions you got wrong.
 
 **Demo recording:** _TODO: add link after recording_
 
@@ -41,16 +41,11 @@ MOCK_AI=1 npm start
 
 ## Usage
 
-1. Paste notes or type a topic (or click **Try an example**).
+1. Paste notes or an interview topic (or click **Try an example**).
 2. Click **Generate study set**.
 3. Flip through flashcards (arrow keys to move, space to flip).
 4. Switch to the **Quiz** tab, answer each question, and at the end re-test
    just the ones you got wrong until you score 100%.
-5. **Refine** the set with a follow-up instruction (e.g. "make the quiz
-   harder", "add cards about X") — the AI edits the existing set instead of
-   regenerating from scratch.
-6. The last 5 study sets are saved locally (**Recent** chips) and survive a
-   page refresh.
 
 ## Architecture
 
@@ -93,14 +88,11 @@ explicit.
 ## Known limitations
 
 - No streaming: results appear all at once after generation finishes.
+- No session persistence: generated study sets are lost on page refresh.
 - Quiz questions are multiple-choice only (exactly what the prompt asks for).
 - The auto-retry on invalid output re-sends the same prompt; it doesn't feed
   the model's error back to it for a "repair" attempt.
 - Notes are capped at 8,000 characters to stay within free-tier token limits.
-- Sessions are stored in the browser's localStorage: they don't sync across
-  devices, and clearing site data removes them.
-- Refinement sends the whole current set to the model, so very large sets use
-  more tokens per refinement.
 
 ## Time spent
 
