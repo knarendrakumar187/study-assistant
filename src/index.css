@@ -1,18 +1,19 @@
 :root {
-  --bg: #0e1117;
-  --surface: #161b24;
-  --surface-2: #1d2430;
-  --border: #2a3342;
-  --text: #e8edf4;
-  --text-dim: #94a3b8;
-  --accent: #6366f1;
-  --accent-hover: #818cf8;
-  --green: #22c55e;
-  --red: #ef4444;
+  /* Paper & ink theme: the app looks like a study desk. */
+  --paper: #f6f1e5;
+  --card: #fffdf6;
+  --ink: #1f1c17;
+  --ink-dim: #6f675c;
+  --accent: #2b4bdf; /* pen-ink blue */
+  --red: #d94f3d; /* index-card margin red */
+  --green: #2e9e5b;
+  --highlight: #ffd84d; /* highlighter yellow */
   --radius: 12px;
+  --border-ink: 2px solid var(--ink);
+  --shadow-ink: 4px 4px 0 var(--ink);
 
-  color-scheme: dark;
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+  font-family: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
 }
 
 * {
@@ -21,12 +22,11 @@
 
 body {
   margin: 0;
-  background:
-    radial-gradient(600px 300px at 15% -5%, rgba(99, 102, 241, 0.14), transparent 70%),
-    radial-gradient(700px 350px at 90% 0%, rgba(56, 189, 248, 0.1), transparent 70%),
-    var(--bg);
-  background-attachment: fixed;
-  color: var(--text);
+  background-color: var(--paper);
+  /* subtle dotted-grid notebook texture */
+  background-image: radial-gradient(rgba(31, 28, 23, 0.09) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+  color: var(--ink);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
