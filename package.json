@@ -1,10 +1,11 @@
 {
-  "name": "flam",
+  "name": "study-assistant",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "start": "concurrently -k \"node server/index.js\" \"vite\"",
+    "dev": "npm start",
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview"
