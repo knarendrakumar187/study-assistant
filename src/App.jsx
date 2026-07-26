@@ -64,12 +64,45 @@ export default function App() {
     setError("");
   }
 
+  function handleNewSession() {
+    abortRef.current?.abort();
+    requestIdRef.current++;
+    setStudySet(null);
+    setStatus("idle");
+    setError("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   return (
-    <div className="app">
+    <>
+      <nav className="navbar">
+        <div className="brand">
+          <span className="brand-mark">S</span>
+          <span className="brand-name">Study Assistant</span>
+        </div>
+        <div className="navbar-actions">
+          {studySet && (
+            <button type="button" className="btn btn-ghost btn-small" onClick={handleNewSession}>
+              + New
+            </button>
+          )}
+          <a
+            className="btn btn-ghost btn-small"
+            href="https://github.com/knarendrakumar187/study-assistant"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
+      </nav>
+
+      <div className="app">
       <header className="app-header">
-        <h1>Study Assistant</h1>
+        <h1>Notes in. Flashcards out.</h1>
         <p className="app-tagline">
-          Turn your notes or any interview topic into flashcards and a quiz. Powered by Gemini.
+          Paste your notes or any interview topic — get flashcards and a quiz to drill
+          with. Powered by Gemini.
         </p>
       </header>
 
@@ -158,6 +191,7 @@ export default function App() {
           <RefineBar onRefine={handleRefine} loading={status === "loading"} />
         </section>
       )}
-    </div>
+      </div>
+    </>
   );
 }

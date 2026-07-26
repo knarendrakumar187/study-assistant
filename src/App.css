@@ -1,3 +1,58 @@
+/* ---------- Navbar ---------- */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  background: var(--paper);
+  border-bottom: var(--border-ink);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: var(--highlight);
+  border: var(--border-ink);
+  border-radius: 8px;
+  box-shadow: 2px 2px 0 var(--ink);
+  transform: rotate(-4deg);
+  font-weight: 700;
+}
+
+.brand-name {
+  letter-spacing: -0.01em;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-small {
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  box-shadow: 2px 2px 0 var(--ink);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
 .app {
   max-width: 720px;
   margin: 0 auto;
