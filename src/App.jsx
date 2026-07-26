@@ -2,7 +2,9 @@ import { useRef, useState } from "react";
 import NotesInput from "./components/NotesInput.jsx";
 import Flashcards from "./components/Flashcards.jsx";
 import Quiz from "./components/Quiz.jsx";
+import RefineBar from "./components/RefineBar.jsx";
 import { generateStudySet } from "./lib/api.js";
+import { loadSessions, saveSession } from "./lib/storage.js";
 import "./App.css";
 
 export default function App() {
@@ -10,15 +12,17 @@ export default function App() {
   const [studySet, setStudySet] = useState(null);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("cards");
+  const [sessions, setSessions] = useState(() => loadSessions());
 
   // Guards against out-of-order responses: only the latest request may
   // update state. The previous in-flight request is also aborted outright.
   const requestIdRef = useRef(0);
   const abortRef = useRef(null);
   const lastNotesRef = useRef("");
+  const lastPayloadRef = useRef(null);
 
-  async function handleGenerate(notes) {
-    lastNotesRef.current = notes;
+  async function runRequest(payload) {
+    lastPayloadRef.current = payload;
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -27,17 +31,37 @@ export default function App() {
     setStatus("loading");
     setError("");
     try {
-      const set = await generateStudySet(notes, controller.signal);
+      const set = await generateStudySet(payload, controller.signal);
       if (requestId !== requestIdRef.current) return; // stale response, ignore
       setStudySet(set);
-      setTab(set.cards.length > 0 ? "cards" : "quiz");
+      setTab((t) => (t === "quiz" && set.quiz.length > 0 ? "quiz" : set.cards.length > 0 ? "cards" : "quiz"));
       setStatus("ready");
+      setSessions(saveSession(payload.notes, set));
     } catch (e) {
       if (requestId !== requestIdRef.current) return;
       if (e.name === "AbortError") return; // cancelled by a newer request
       setError(e.message);
       setStatus("error");
     }
+  }
+
+  function handleGenerate(notes) {
+    lastNotesRef.current = notes;
+    runRequest({ notes });
+  }
+
+  function handleRefine(instruction) {
+    runRequest({ notes: lastNotesRef.current || "(see current study set)", instruction, current: studySet });
+  }
+
+  function handleLoadSession(session) {
+    abortRef.current?.abort();
+    requestIdRef.current++; // any in-flight response is now stale
+    lastNotesRef.current = session.notes;
+    setStudySet(session.studySet);
+    setTab(session.studySet.cards.length > 0 ? "cards" : "quiz");
+    setStatus("ready");
+    setError("");
   }
 
   return (
@@ -51,10 +75,27 @@ export default function App() {
 
       <NotesInput onGenerate={handleGenerate} loading={status === "loading"} />
 
+      {sessions.length > 0 && (
+        <div className="sessions">
+          <span className="sessions-label">Recent:</span>
+          {sessions.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className="session-chip"
+              onClick={() => handleLoadSession(s)}
+              title={new Date(s.savedAt).toLocaleString()}
+            >
+              {s.title}
+            </button>
+          ))}
+        </div>
+      )}
+
       {status === "loading" && (
         <div className="state-panel" role="status">
           <div className="spinner" />
-          <p>Reading your notes and building a study set…</p>
+          <p>Working on your study set…</p>
         </div>
       )}
 
@@ -64,7 +105,7 @@ export default function App() {
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => handleGenerate(lastNotesRef.current)}
+            onClick={() => runRequest(lastPayloadRef.current)}
           >
             Retry
           </button>
@@ -112,6 +153,8 @@ export default function App() {
             <Flashcards cards={studySet.cards} />
           )}
           {tab === "quiz" && studySet.quiz.length > 0 && <Quiz questions={studySet.quiz} />}
+
+          <RefineBar onRefine={handleRefine} loading={status === "loading"} />
         </section>
       )}
     </div>
