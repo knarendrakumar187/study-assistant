@@ -43,11 +43,46 @@ function apiError(status, message) {
   return err;
 }
 
+// Dev-only mock (MOCK_AI=1): lets the UI be developed and demoed without a
+// key or network. Returns the same "raw text" shape a real model would.
+const MOCK_STUDY_SET = {
+  title: "Mock Study Set (no API key used)",
+  cards: [
+    { question: "What is evaporation?", answer: "The sun heats water in oceans and lakes, turning it into vapor." },
+    { question: "What is condensation?", answer: "Water vapor cools in the atmosphere and forms clouds." },
+    { question: "Roughly how much of Earth's water is in the oceans?", answer: "About 97%." },
+  ],
+  quiz: [
+    {
+      question: "Which process describes plants releasing water vapor?",
+      options: ["Evaporation", "Transpiration", "Precipitation", "Collection"],
+      correctIndex: 1,
+      explanation: "Transpiration is the release of water vapor through plant leaves.",
+    },
+    {
+      question: "What happens during precipitation?",
+      options: [
+        "Water evaporates from the sea",
+        "Clouds form from vapor",
+        "Water falls as rain, snow, or hail",
+        "Water collects underground",
+      ],
+      correctIndex: 2,
+      explanation: "Precipitation is water falling back to Earth as rain, snow, or hail.",
+    },
+  ],
+};
+
 /**
  * Sends the notes to Gemini and returns the model's raw text response.
  * Throws an Error with a `.status` property on any upstream failure.
  */
 export async function generateStudySet(notes) {
+  if (process.env.MOCK_AI === "1") {
+    await new Promise((r) => setTimeout(r, 800)); // simulate latency
+    return JSON.stringify(MOCK_STUDY_SET);
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw apiError(500, "Server is not configured: GEMINI_API_KEY is missing.");
