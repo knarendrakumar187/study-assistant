@@ -69,7 +69,7 @@ export default function App() {
       <header className="app-header">
         <h1>Study Assistant</h1>
         <p className="app-tagline">
-          Paste your notes, get flashcards and a quiz. Powered by Gemini.
+          Turn your notes or any interview topic into flashcards and a quiz. Powered by Gemini.
         </p>
       </header>
 
@@ -115,8 +115,9 @@ export default function App() {
       {status === "idle" && !studySet && (
         <div className="state-panel state-empty">
           <p>
-            Nothing here yet. Paste some notes above (or hit “Try an example”) and
-            generate your first study set.
+            Nothing here yet. Paste your notes or an interview topic above — or hit
+            “Try an example” for ready-made interview questions — and generate your
+            first study set.
           </p>
         </div>
       )}

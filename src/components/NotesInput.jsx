@@ -84,7 +84,7 @@ export default function NotesInput({ onGenerate, loading }) {
         className="notes-textarea"
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        placeholder="Paste your study notes here, or just type a topic like 'French Revolution basics'..."
+        placeholder="Paste your study notes, or type a topic like 'React hooks interview questions'..."
         rows={7}
         aria-label="Study notes or topic"
       />
