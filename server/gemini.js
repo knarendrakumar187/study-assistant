@@ -9,7 +9,31 @@
 const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
 const GEMINI_TIMEOUT_MS = 25_000;
 
-function buildPrompt(notes) {
+function buildPrompt(notes, refine) {
+  if (refine) {
+    return `You are a study assistant. The user already has the study set below
+and wants it modified.
+
+CURRENT STUDY SET (JSON):
+${JSON.stringify(refine.current)}
+
+USER'S INSTRUCTION:
+"""
+${refine.instruction}
+"""
+
+Apply the instruction to the current study set. Keep everything the user did not
+ask to change exactly as it is. Respond with ONLY the FULL updated JSON object,
+no markdown fences, in the same shape as the current study set (title, cards
+with question/answer, quiz with question/options/correctIndex/explanation).
+Every quiz question has exactly 4 options and correctIndex is 0-3.
+
+For reference, the original notes/topic were:
+"""
+${notes}
+"""`;
+  }
+
   return `You are a study assistant. Based on the study notes or topic below,
 create flashcards and a multiple-choice quiz.
 
@@ -78,9 +102,11 @@ const MOCK_STUDY_SET = {
 
 /**
  * Sends the notes to Gemini and returns the model's raw text response.
+ * When `refine` ({ instruction, current }) is given, asks the model to edit
+ * the existing study set instead of creating a new one.
  * Throws an Error with a `.status` property on any upstream failure.
  */
-export async function generateStudySet(notes) {
+export async function generateStudySet(notes, refine = null) {
   if (process.env.MOCK_AI === "1") {
     await new Promise((r) => setTimeout(r, 800)); // simulate latency
     return JSON.stringify(MOCK_STUDY_SET);
@@ -102,7 +128,7 @@ export async function generateStudySet(notes) {
         "x-goog-api-key": apiKey,
       },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: buildPrompt(notes) }] }],
+        contents: [{ parts: [{ text: buildPrompt(notes, refine) }] }],
         generationConfig: {
           temperature: 0.4,
           responseMimeType: "application/json",

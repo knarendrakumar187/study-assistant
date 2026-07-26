@@ -22,8 +22,25 @@ export async function handleGenerate(req, res) {
     return;
   }
 
+  // Optional refinement: an instruction plus the study set it should edit.
+  let refine = null;
+  const instruction =
+    typeof req.body?.instruction === "string" ? req.body.instruction.trim() : "";
+  if (instruction) {
+    if (instruction.length > 500) {
+      res.status(400).json({ error: "Refinement instruction is too long (max 500 characters)." });
+      return;
+    }
+    const current = req.body?.current;
+    if (!current || typeof current !== "object") {
+      res.status(400).json({ error: "Refinement requires the current study set." });
+      return;
+    }
+    refine = { instruction, current };
+  }
+
   try {
-    const raw = await generateStudySet(notes);
+    const raw = await generateStudySet(notes, refine);
     res.status(200).json({ raw });
   } catch (e) {
     res.status(e.status || 500).json({ error: e.message || "Unexpected server error." });
