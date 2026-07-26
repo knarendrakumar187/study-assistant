@@ -3,7 +3,10 @@
 // Parsing + validation of that text happens on the frontend, which is the
 // part of the app responsible for surviving bad model output.
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+// "latest" alias: Google keeps it pointed at the current flash model, so the
+// app doesn't break when a specific version is retired (a pinned
+// "gemini-2.5-flash" started returning 404 during development).
+const MODEL = process.env.GEMINI_MODEL || "gemini-flash-latest";
 const GEMINI_TIMEOUT_MS = 25_000;
 
 function buildPrompt(notes) {
