@@ -96,4 +96,4 @@ explicit.
 
 ## Time spent
 
-_TODO: fill in honestly, e.g. "~7 hours over 3 days"._
+~3 hours (build, deploy, and testing).
