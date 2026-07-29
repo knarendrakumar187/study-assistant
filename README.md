@@ -4,7 +4,7 @@ Paste your study notes or an interview topic, and the app uses Google Gemini to
 generate **flashcards** and a **multiple-choice quiz**. Flip through the cards,
 take the quiz, and re-test only the questions you got wrong.
 
-**Demo recording:** _TODO: add link after recording_
+**Demo recording:** https://drive.google.com/file/d/1GCkMqFr1G-BjrhZi8IHln7ijDHxBn9yl/view
 
 **Live deployment:** https://study-assistant-livid-gamma.vercel.app/
 
