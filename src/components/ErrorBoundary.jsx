@@ -22,7 +22,7 @@ export default class ErrorBoundary extends Component {
       return (
         <div className="app">
           <div className="state-panel state-error" role="alert">
-            <p>Something went wrong while rendering. Your saved sessions are safe.</p>
+            <p>Something went wrong while rendering. Refresh the page and try again.</p>
             <button
               type="button"
               className="btn btn-primary"
